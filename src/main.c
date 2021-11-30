@@ -48,6 +48,27 @@ char **lsh_split_line(char *line) {
     return tokens;
 }
 
+int lsh_launch(char **args) {
+    pid_t pid, wpid;
+    int status;
+
+    pid = fork();
+    if (pid == 0) { //this is a child process
+        if (execvp(args[0], args) == -1) { //uses program name and vector (arguments)
+            perror("lsh");
+        }
+        exit(EXIT_FAILURE);
+    } else if (pid < 0) {
+        perror("how did you make the process id negative");
+    } else { //Parent process
+        do {
+            wpid = waitpid(pid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+
+    return 1;
+}
+
 
 
 void lsh_loop()
