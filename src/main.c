@@ -1,3 +1,5 @@
+#include <sys/wait.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,31 +26,21 @@ int (*built_func[]) (char **) = {
     &lsh_dogfact
 };
 
-int lsh_builts() {
-    return sizeof(built_str) / sizeof(char *);
-}
+int lsh_builts() { return sizeof(built_str) / sizeof(char *); }
 
 //Builtin implementations
 int lsh_cd(char **args) {
-    if (args[1] == NULL) {
-        fprintf(stderr, "(s)hell: expected \"cd\"\n");
-    } else {
-        if (chdir(args[1]) != 0) {
-            perror("(s)hell");
-        }
-    }
+    if (args[1] == NULL) fprintf(stderr, "(s)hell: expected \"cd\"\n");
+    else if (chdir(args[1]) != 0) perror("(s)hell");
     return 1;
 }
 
 int lsh_help(char **args) {
-    int i;
     printf("Solomon Mollet's (s)hell; a fork of Stephen Brennan's LSH\n");
     printf("Input program names and args, and hit enter.\n");
     printf("these are the following built-in programs:\n");
 
-    for (i = 0; i < lsh_builts(); i++) {
-        printf("\t%s\n",built_str[i]);
-    }
+    for (int i = 0; i < lsh_builts(); i++) printf("\t%s\n",built_str[i]);
 
     printf("use man for other programs.\n");
     return 1;
@@ -66,6 +58,14 @@ int lsh_dogfact(char **args) {
     printf(" { (_) }\n");
     printf("  `-^-'\n");
     return 0;
+}
+
+int lsh_execute(char **args) {
+    if (args[0] == NULL) return 1; //No command
+
+    for (int i = 0; i < lsh_builts(); i++) if (strcmp(args[0], built_str[i]) == 0) return (*built_func[i])(args); //Builtin
+
+    return lsh_launch(args); //Everything else
 }
 
 char *lsh_read_line(void)
