@@ -57,14 +57,15 @@ int lsh_dogfact(char **args) {
     printf("  )O_O(\n");
     printf(" { (_) }\n");
     printf("  `-^-'\n");
-    return 0;
+    return 1;
 }
 
 int lsh_execute(char **args) {
     if (args[0] == NULL) return 1; //No command
 
-    for (int i = 0; i < lsh_builts(); i++) if (strcmp(args[0], built_str[i]) == 0) return (*built_func[i])(args); //Builtin
-
+    for (int i = 0; i < lsh_builts(); i++) {
+        if (strcmp(args[0], built_str[i]) == 0) return (*built_func[i])(args); //Builtin
+    }
     return lsh_launch(args); //Everything else
 }
 
@@ -134,25 +135,6 @@ int lsh_launch(char **args) {
     return 1;
 }
 
-
-
-void lsh_loop()
-{
-    char *line;
-    char **args;
-    int status;
-
-    do {
-        printf("input here: ");
-        line = lsh_read_line();
-        args = lsh_split_line(args);
-        status = lsh_execute(args);
-
-        free(line);
-        free(args);
-    } while (status);
-}
-
 int main (int argc, char **argv)
 {
     //Load
@@ -162,4 +144,21 @@ int main (int argc, char **argv)
     //Shutdown
     
     return EXIT_SUCCESS;
+}
+
+void lsh_loop(void)
+{
+    char *line;
+    char **args;
+    int status;
+
+    do {
+        printf(">: ");
+        line = lsh_read_line();
+        args = lsh_split_line(line);
+        status = lsh_execute(args);
+
+        free(line);
+        free(args);
+    } while (status);
 }
