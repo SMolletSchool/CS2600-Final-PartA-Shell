@@ -1,5 +1,7 @@
 #include <stdlib.h>
-
+#include <string.h>
+#define token_buffer 64
+#define token_del " \t\n\r\a"
 
 char *lsh_read_line(void)
 {
@@ -15,6 +17,38 @@ char *lsh_read_line(void)
     }
     return line;
 }
+
+char **lsh_split_line(char *line) {
+    int bufsize = token_buffer, position = 0;
+    char **tokens = malloc(bufsize * sizeof(char));
+    char *token;
+
+    if (!tokens) {
+        fprintf(stderr, "allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+
+    token = strtok(line, token_del);
+    while (token != NULL) {
+        tokens[position] = token;
+        position++;
+
+        if (position >= bufsize) {
+            bufsize += token_buffer;
+            tokens = realloc(tokens, bufsize * sizeof(char));
+            if (!tokens) {
+                fprintf(stderr, "allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        token = strtok(NULL, token_del);
+    }
+    tokens[position] = NULL;
+    return tokens;
+}
+
+
 
 void lsh_loop()
 {
