@@ -17,7 +17,7 @@ char *lsh_read_line()
         c = getchar();
 
         //For end of file
-        if (c == EOF || c == '\n') {
+        if (c == 0 || c == '\n') { //if c is EOF, which is 0
             buf[position] = c;
             return buf;
         } else {
