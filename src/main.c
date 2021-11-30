@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 
-char *lsh_read_line()
+char *lsh_read_line(void)
 {
     ssize_t buffer_size = 0;
     char *line = NULL;
