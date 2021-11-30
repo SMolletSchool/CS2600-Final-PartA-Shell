@@ -1,8 +1,10 @@
 #include <sys/wait.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
 #define token_buffer 64
 #define token_del " \t\n\r\a"
 
@@ -40,7 +42,7 @@ int lsh_help(char **args) {
     printf("Input program names and args, and hit enter.\n");
     printf("these are the following built-in programs:\n");
 
-    for (int i = 0; i < lsh_builts(); i++) printf("\t%s\n",built_str[i]);
+    for (int i = 0; i < lsh_builts(); i++) printf("  %s\n",built_str[i]);
 
     printf("use man for other programs.\n");
     return 1;
@@ -57,6 +59,27 @@ int lsh_dogfact(char **args) {
     printf("  )O_O(\n");
     printf(" { (_) }\n");
     printf("  `-^-'\n");
+    return 1;
+}
+
+int lsh_launch(char **args) {
+    pid_t pid, wpid;
+    int status;
+
+    pid = fork();
+    if (pid == 0) { //this is a child process
+        if (execvp(args[0], args) == -1) { //uses program name and vector (arguments)
+            perror("(s)hell");
+        }
+        exit(EXIT_FAILURE);
+    } else if (pid < 0) {
+        perror("how did you make the process id negative");
+    } else { //Parent process
+        do {
+            wpid = waitpid(pid, &status, WUNTRACED);
+        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+    }
+
     return 1;
 }
 
@@ -86,11 +109,11 @@ char *lsh_read_line(void)
 
 char **lsh_split_line(char *line) {
     int bufsize = token_buffer, position = 0;
-    char **tokens = malloc(bufsize * sizeof(char));
+    char **tokens = malloc(bufsize * sizeof(char*));
     char *token;
 
     if (!tokens) {
-        fprintf(stderr, "allocation error\n");
+        fprintf(stderr, "(s)hell: allocation error\n");
         exit(EXIT_FAILURE);
     }
 
@@ -101,9 +124,9 @@ char **lsh_split_line(char *line) {
 
         if (position >= bufsize) {
             bufsize += token_buffer;
-            tokens = realloc(tokens, bufsize * sizeof(char));
+            tokens = realloc(tokens, bufsize * sizeof(char*));
             if (!tokens) {
-                fprintf(stderr, "allocation error\n");
+                fprintf(stderr, "(s)hell: allocation error\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -112,38 +135,6 @@ char **lsh_split_line(char *line) {
     }
     tokens[position] = NULL;
     return tokens;
-}
-
-int lsh_launch(char **args) {
-    pid_t pid, wpid;
-    int status;
-
-    pid = fork();
-    if (pid == 0) { //this is a child process
-        if (execvp(args[0], args) == -1) { //uses program name and vector (arguments)
-            perror("(s)hell");
-        }
-        exit(EXIT_FAILURE);
-    } else if (pid < 0) {
-        perror("how did you make the process id negative");
-    } else { //Parent process
-        do {
-            wpid = waitpid(pid, &status, WUNTRACED);
-        } while (!WIFEXITED(status) && !WIFSIGNALED(status));
-    }
-
-    return 1;
-}
-
-int main (int argc, char **argv)
-{
-    //Load
-
-    //Run
-    lsh_loop();
-    //Shutdown
-    
-    return EXIT_SUCCESS;
 }
 
 void lsh_loop(void)
@@ -161,4 +152,15 @@ void lsh_loop(void)
         free(line);
         free(args);
     } while (status);
+}
+
+int main (int argc, char **argv)
+{
+    //Load
+
+    //Run
+    lsh_loop();
+    //Shutdown
+    
+    return EXIT_SUCCESS;
 }
