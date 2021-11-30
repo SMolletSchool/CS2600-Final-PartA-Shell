@@ -13,7 +13,7 @@ buildShell:
 	$(CC) -o bin/shell.out src/main.c
 
 buildLibraryImp:
-	$(CC) -DLSH_USE_STD_GETLINE -o lsh src/main.c
+	$(CC) -DLSH_USE_STD_GETLINE -o bin/shelllib.out src/main.c
 
 clean:
 	$(DELETE) *.o *.out
