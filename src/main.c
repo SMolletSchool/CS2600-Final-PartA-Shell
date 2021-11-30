@@ -37,10 +37,36 @@ int lsh_cd(char **args) {
             perror("(s)hell");
         }
     }
-    return 1
+    return 1;
 }
 
+int lsh_help(char **args) {
+    int i;
+    printf("Solomon Mollet's (s)hell; a fork of Stephen Brennan's LSH\n");
+    printf("Input program names and args, and hit enter.\n");
+    printf("these are the following built-in programs:\n");
 
+    for (i = 0; i < lsh_builts(); i++) {
+        printf("\t%s\n",built_str[i]);
+    }
+
+    printf("use man for other programs.\n");
+    return 1;
+}
+
+int lsh_exit(char **args) {
+    return 0;
+}
+
+int lsh_dogfact(char **args) {
+    printf("Here is Today's Dog Fact: Dogs are cute. Tune in tomorrow for Today's Dog Fact.\n");
+    printf(",-.___,-.\n");
+    printf("\\_/_ _\\_/\n");
+    printf("  )O_O(\n");
+    printf(" { (_) }\n");
+    printf("  `-^-'\n");
+    return 0;
+}
 
 char *lsh_read_line(void)
 {
@@ -94,7 +120,7 @@ int lsh_launch(char **args) {
     pid = fork();
     if (pid == 0) { //this is a child process
         if (execvp(args[0], args) == -1) { //uses program name and vector (arguments)
-            perror("lsh");
+            perror("(s)hell");
         }
         exit(EXIT_FAILURE);
     } else if (pid < 0) {
@@ -118,7 +144,7 @@ void lsh_loop()
 
     do {
         printf("input here: ");
-        line = lsh_read_line(line);
+        line = lsh_read_line();
         args = lsh_split_line(args);
         status = lsh_execute(args);
 
