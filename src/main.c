@@ -1,7 +1,46 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #define token_buffer 64
 #define token_del " \t\n\r\a"
+
+//Builtin functions
+int lsh_cd(char **args);
+int lsh_help(char **args);
+int lsh_exit(char **args);
+int lsh_dogfact(char **args);
+
+char *built_str[] = {
+    "cd",
+    "help",
+    "exit",
+    "dogfact"
+};
+
+int (*built_func[]) (char **) = {
+    &lsh_cd,
+    &lsh_help,
+    &lsh_exit,
+    &lsh_dogfact
+};
+
+int lsh_builts() {
+    return sizeof(built_str) / sizeof(char *);
+}
+
+//Builtin implementations
+int lsh_cd(char **args) {
+    if (args[1] == NULL) {
+        fprintf(stderr, "(s)hell: expected \"cd\"\n");
+    } else {
+        if (chdir(args[1]) != 0) {
+            perror("(s)hell");
+        }
+    }
+    return 1
+}
+
+
 
 char *lsh_read_line(void)
 {
